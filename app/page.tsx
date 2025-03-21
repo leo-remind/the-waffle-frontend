@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { FaChartLine, FaBrain, FaQuestion, FaComments, FaArrowRight } from "react-icons/fa6"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
+import RagQueryInterface from "@/components/ui/rag-interface"
 
 // Language translations
 const translations = {
@@ -233,44 +234,25 @@ export default function Home() {
             </>
           ) : (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="w-full flex flex-col items-center justify-center min-h-[70vh]"
+              key="rag-interface"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex-grow flex flex-col h-full overflow-hidden"
             >
-              <div className="w-full max-w-2xl bg-[#F5F5F5] rounded-lg border border-neutral overflow-hidden">
-                <div className="bg-white p-2 flex items-center justify-between">
-                  <div className="bg-white px-5 py-2 rounded-full font-dm-sans">{fileName}</div>
-                  <Button variant="ghost" size="icon" className="rounded-full h-10 w-10" onClick={resetUpload}>
-                    <FaArrowRight className="h-5 w-5" />
-                  </Button>
-                </div>
-                <div className="p-4">
-                  <div className="border border-neutral rounded-lg p-6 bg-white">
-                    <input
-                      type="text"
-                      placeholder="Enter your query"
-                      className="w-full border-none outline-none font-dm-sans text-primary"
-                    />
-                    <div className="flex justify-between items-center mt-4">
-                      <div className="flex gap-2">
-                        {selectedTags.map((tag) => (
-                          <div
-                            key={tag}
-                            className="rounded-full px-3 py-1 flex items-center font-dm-sans text-white"
-                            style={{
-                              backgroundColor: getTagColor(tag),
-                            }}
-                          >
-                            {getTagIcon(tag)} {tag}
-                          </div>
-                        ))}
-                      </div>
-                      <Button size="icon" className="rounded-full bg-secondary text-white h-10 w-10">
-                        <FaArrowRight className="h-5 w-5" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+              <div className="flex-grow" /> {/* This creates space above the interface */}
+              <div className="absolute bottom-0 left-0 right-0 mb-6 mx-auto max-w-3xl w-11/12">
+                <RagQueryInterface
+                  fileName={fileName}
+                  onReset={resetUpload}
+                  selectedTags={selectedTags}
+                  toggleTag={toggleTag}
+                  getTagColor={getTagColor}
+                  getTagIcon={getTagIcon}
+                  isTagSelected={isTagSelected}
+                  language={language}
+                  translations={translations}
+                />
               </div>
             </motion.div>
           )}
@@ -279,4 +261,3 @@ export default function Home() {
     </div>
   )
 }
-
