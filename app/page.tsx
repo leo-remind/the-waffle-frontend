@@ -111,7 +111,7 @@ export default function Home() {
         <Link href="/">
         <div className="flex items-center gap-1">
           <span className="text-3xl font-dm-sans font-black text-text-primary">The</span>
-          <span className="text-3xl font-dm-sans font-bold text-primary">•</span>
+          <span className="text-4xl font-dm-sans font-black text-primary">•</span>
           <span className="text-3xl font-dm-sans font-black text-text-primary">Waffle</span>
         </div>
         </Link>
@@ -174,14 +174,14 @@ export default function Home() {
               <motion.div
                 initial={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="w-full border-4 border-dashed border-text-primary rounded-3xl p-10 flex flex-col items-center justify-center cursor-pointer hover:bg-primary transition-all group hover:border-primary hover:border-solid"
+                className={`w-full border-4 border-dashed border-text-primary rounded-3xl p-10 flex flex-col items-center justify-center cursor-pointer hover:bg-[#1C80E320] transition-all group hover:border-primary hover:border-solid`}
                 onClick={triggerFileInput}
               >
                 <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
-                <div className="text-text-primary mb-4 group-hover:text-white">
+                <div className="text-text-primary mb-4 group-hover:text-primary">
                   <FiUpload className="w-36 h-36"/>
                 </div>
-                <p className="text-2xl font-dm-sans text-text-primary group-hover:text-white">{t.uploadPrompt}</p>
+                <p className="text-2xl font-dm-sans text-text-primary group-hover:text-primary">{t.uploadPrompt}</p>
               </motion.div>
 {/* 
               <div className="flex gap-2 mt-4 self-start">
