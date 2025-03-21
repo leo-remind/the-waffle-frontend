@@ -8,6 +8,8 @@ import { FaChartLine, FaBrain, FaQuestion, FaComments, FaArrowRight } from "reac
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import RagQueryInterface from "@/components/ui/rag-interface"
+import Link from "next/link"
+import { FiUpload } from "react-icons/fi";
 
 // Language translations
 const translations = {
@@ -105,12 +107,14 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="p-5 flex justify-between items-center">
+      <header className="p-5 flex justify-between items-center sticky top-0 bg-white">
+        <Link href="/">
         <div className="flex items-center gap-1">
           <span className="text-3xl font-dm-sans font-black text-text-primary">The</span>
           <span className="text-3xl font-dm-sans font-bold text-primary">•</span>
           <span className="text-3xl font-dm-sans font-black text-text-primary">Waffle</span>
         </div>
+        </Link>
         <div className="flex gap-2">
         <div ref={dropdownRef} className="relative">
             <Button 
@@ -152,7 +156,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto p-5 flex flex-col items-center">
+      <main className="max-w-4xl mx-auto p-5 flex flex-col items-center">
         <AnimatePresence>
           {!fileUploaded ? (
             <>
@@ -170,29 +174,14 @@ export default function Home() {
               <motion.div
                 initial={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="w-full border-4 border-dashed border-text-primary rounded-3xl p-10 flex flex-col items-center justify-center cursor-pointer"
+                className="w-full border-4 border-dashed border-text-primary rounded-3xl p-10 flex flex-col items-center justify-center cursor-pointer hover:bg-primary transition-all group hover:border-primary hover:border-solid"
                 onClick={triggerFileInput}
               >
                 <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
-                <div className="text-text-primary mb-4">
-                  <svg width="72" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      d="M12 16V8M12 8L8 12M12 8L16 12"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M3 15V16C3 18.2091 4.79086 20 7 20H17C19.2091 20 21 18.2091 21 16V15"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                <div className="text-text-primary mb-4 group-hover:text-white">
+                  <FiUpload className="w-36 h-36"/>
                 </div>
-                <p className="text-2xl font-dm-sans text-text-primary">{t.uploadPrompt}</p>
+                <p className="text-2xl font-dm-sans text-text-primary group-hover:text-white">{t.uploadPrompt}</p>
               </motion.div>
 {/* 
               <div className="flex gap-2 mt-4 self-start">
@@ -226,7 +215,7 @@ export default function Home() {
                         <FaComments className="text-text-secondary mt-1 mr-2" />
                         <h3 className="font-dm-sans text-text-primary font-medium text-bold">How to do magic in english</h3>
                       </div>
-                      <p className="text-base font-dm-sans text-text-secondary">1 DAY AGO</p>
+                      <p className="text-base font-dm-sans text-text-secondary font-bold">1 DAY AGO</p>
                     </div>
                   ))}
                 </div>

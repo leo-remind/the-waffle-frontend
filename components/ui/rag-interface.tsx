@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from "react"
-import { FaArrowRight, FaChartLine, FaBrain, FaQuestion } from "react-icons/fa6"
+import { FaArrowUp, FaChartLine, FaBrain, FaQuestion } from "react-icons/fa6"
 import { Button } from "@/components/ui/button"
 
 interface RagQueryProps {
@@ -65,6 +65,7 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
       document.head.appendChild(pulseStyle);
     }
     
+    // Cleanup function
     return () => {
       if (eventSourceRef.current) {
         eventSourceRef.current.close();
@@ -156,37 +157,47 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
       eventSourceRef.current.close();
     }
     
-    // For demo purposes we'll simulate the server response
-    simulateServerEvents();
-  };
-
-  const simulateServerEvents = () => {
-    // This is a simulation of SSE events for demonstration
+    // Create new EventSource for SSE
+    const encodedQuery = encodeURIComponent(query);
+    const serverUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    eventSourceRef.current = new EventSource(`${serverUrl}/query/${encodedQuery}`);
     
-    const mockResults = [
-      "Retrieving relevant documents...",
-      "Found 3 documents related to your query.",
-      "Analyzing document content...",
-      "Generating response based on retrieved information...",
-      `Answer: Based on the analysis of ${fileName}, the information you requested shows that...`,
-      "Processing complete."
-    ];
+    // Handle EventSource events
+    eventSourceRef.current.onopen = () => {
+      console.log('EventSource connection opened');
+    };
     
-    let index = 0;
+    eventSourceRef.current.onmessage = (event) => {
+      console.log('Received message:', event.data);
+      
+      // Set the latest message in the results array
+      setResults([event.data]);
+    };
     
-    const interval = setInterval(() => {
-      if (index < mockResults.length) {
-        // Set a key that will force React to create a new DOM element
-        // instead of reusing the existing one
-        setResults([mockResults[index]]);
-        
-        index++;
-      } else {
-        clearInterval(interval);
-        setStatus('Query complete.');
+    eventSourceRef.current.onerror = (error) => {
+      console.error('EventSource error:', error);
+      
+      // Close the connection
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+        eventSourceRef.current = null;
+      }
+      
+      // Update status and re-enable search
+      setStatus('Query complete or connection closed.');
+      setIsProcessing(false);
+    };
+    
+    // Safety timeout in case the server doesn't close the connection
+    setTimeout(() => {
+      if (eventSourceRef.current && eventSourceRef.current.readyState !== 2) { // 2 = CLOSED
+        console.log('Closing connection due to timeout');
+        eventSourceRef.current.close();
+        eventSourceRef.current = null;
+        setStatus('Query complete (timeout).');
         setIsProcessing(false);
       }
-    }, 1500); // Increased time to allow animation to complete
+    }, 30000); // 30-second timeout
   };
 
   return (
@@ -216,17 +227,19 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
         )}
       </div>
       
-        <div className="bg-[#F5F5F5] flex items-center p-10 rounded-t-2xl w-[95%] mx-auto">
-            <div className="bg-white px-4 py-4 rounded-2xl font-dm-sans text-base">{fileName}</div>
-            <Button 
+      <div className="bg-[#F5F5F5] flex items-center p-6 rounded-t-2xl w-[95%] mx-auto">
+        <div className="w-fit h-fit">
+          <div className="bg-white px-4 py-4 rounded-2xl font-dm-sans text-base">{fileName}</div>
+          <Button 
             variant="ghost" 
             size="icon" 
-            className="h-7 w-7 rounded-full ml-3 bg-[#333] text-white flex items-center justify-center"
+            className="h-7 w-7 rounded-full ml-3 bg-[#333] text-white flex items-center justify-center absolute left-6 bottom-52 hover:bg-primary"
             onClick={onReset}
-            >
+          >
             <span className="text-sm">✕</span>
-            </Button>
+          </Button>
         </div>
+      </div>
 
       {/* Chat interface */}
       <div className="w-full max-w-3xl mx-auto bg-white rounded-2xl border border-gray-300 overflow-hidden shadow-lg">
@@ -235,24 +248,23 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
           <input
             type="text"
             placeholder={t.enterQuery}
-            className="w-full border-none outline-none font-dm-sans text-primary p-5 text-lg"
+            className="w-full border-none outline-none font-dm-sans text-black p-5 text-lg"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && !isProcessing && performSearch()}
             disabled={isProcessing}
           />
           
-          <div className="flex justify-between items-center px-5 py-3 border-t border-gray-200">
-            <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+          <div className="flex justify-between items-center px-5 py-3">
+            <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
               {["Graphs", "Explain", "Reason"].map((tag) => (
                 <Button
                   key={tag}
-                  variant="outline"
-                  className="rounded-full font-dm-sans transition-all duration-200 ease-in-out hover:shadow-md text-sm py-1 px-3 h-auto flex-shrink-0"
+                  className="rounded-full border-2 font-dm-sans transition-all font-semibold duration-200 ease-in-out hover:shadow-md text-sm py-2 px-3 h-auto flex-shrink-0 text-md"
                   style={{
-                    borderColor: getTagColor(tag),
-                    color: isTagSelected(tag) ? "white" : getTagColor(tag),
-                    backgroundColor: isTagSelected(tag) ? `${getTagColor(tag)}80` : "transparent",
+                    borderColor: isTagSelected(tag) ? `${getTagColor(tag)}40` : "#999",
+                    color: isTagSelected(tag) ? getTagColor(tag) : "#999",
+                    backgroundColor: isTagSelected(tag) ? `${getTagColor(tag)}40` : "transparent",
                   }}
                   onClick={() => toggleTag(tag)}
                 >
@@ -268,9 +280,12 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
             >
               {isProcessing ? 
                 <div className="flex items-center justify-center">
-                  <span className="bg-white"></span>
+                  <svg aria-hidden="true" className="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                    <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+                  </svg>
                 </div> : 
-                <FaArrowRight className="h-5 w-5" />
+                <FaArrowUp className="h-5 w-5" />
               }
             </Button>
           </div>
