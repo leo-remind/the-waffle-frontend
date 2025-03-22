@@ -202,7 +202,7 @@ export default function Home() {
                 className={`w-full border-4 border-dashed border-text-primary rounded-3xl p-10 flex flex-col items-center justify-center cursor-pointer hover:bg-[#1C80E320] transition-all group hover:border-primary hover:border-solid`}
                 onClick={triggerFileInput}
               >
-                <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept="application/pdf"/>
+                <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden"/> {/* TODO: ADD application/pdf */}
                 <div className="text-text-primary mb-4 group-hover:text-primary">
                   <FiUpload className="w-36 h-36"/>
                 </div>
