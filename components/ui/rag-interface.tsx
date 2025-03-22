@@ -143,6 +143,42 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
       document.head.appendChild(style);
     }
   }, []);
+  
+  // Auto-resize textarea based on content
+  useEffect(() => {
+    const handleResize = () => {
+      const textarea = document.querySelector('textarea');
+      if (textarea) {
+        // Save scroll position
+        const scrollTop = textarea.scrollTop;
+        
+        // Reset height to recalculate
+        textarea.style.height = 'auto';
+        
+        // Set new height with max limit
+        const newHeight = Math.min(textarea.scrollHeight, 150);
+        textarea.style.height = `${newHeight}px`;
+        
+        // Enable scrolling when content exceeds max height
+        if (textarea.scrollHeight > 150) {
+          textarea.style.overflowY = 'scroll';
+        } else {
+          textarea.style.overflowY = 'hidden';
+        }
+        
+        // Restore scroll position
+        textarea.scrollTop = scrollTop;
+      }
+    };
+    
+    handleResize();
+    // Also resize on window resize
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [query]);
 
   const performSearch = () => {
     if (!query.trim()) {
@@ -150,6 +186,21 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
       return;
     }
 
+    // Store the current query to use in chat history
+    const currentQuery = query;
+    
+    // Immediately add user's message to chat history
+    setChatHistory([
+      ...chatHistory,
+      {
+        role: "human",
+        value: currentQuery
+      } as ChatHistory
+    ]);
+    
+    // Clear the input field immediately
+    setQuery("");
+    
     // Clear previous results
     setResults([]);
 
@@ -163,7 +214,7 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
     }
 
     // Create new WebSocket connection
-    connectWebSocket(query);
+    connectWebSocket(currentQuery);
   };
 
   const connectWebSocket = (queryText: string) => {
@@ -199,9 +250,14 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
 
       if (message["isStreaming"]) {
         setResults([message["message"]].concat(results))
+        if (message["tables"] && message["tables"].length > 0) {
+          setTables(message["tables"].map((table: string) => JSON.parse(table)));
+        }
       }
       else {
-        setChatHistory(chatHistory.concat([
+        // Only add the AI response to chat history (user message was already added)
+        setChatHistory([
+          ...chatHistory,
           {
             role: "human",
             value: queryText
@@ -210,10 +266,7 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
             role: "llm",
             value: message["message"]
           } as ChatHistory
-        ]))
-        console.log("set tables to ", message["tables"].map((table: string) => JSON.parse(table)))
-        setTables(message["tables"].map((table: string) => JSON.parse(table)));
-        setQuery("")
+        ])
         setStatus('Query complete.');
         setIsProcessing(false);
       }
@@ -278,17 +331,38 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
       </div>
 
       {/* Chat interface */}
-      <div className="w-full max-w-3xl mx-auto bg-white rounded-2xl border border-gray-300 overflow-hidden shadow-lg">
+      <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl border border-gray-300 overflow-hidden shadow-lg">
 
         <div>
-          <input
-            type="text"
+          <textarea
             placeholder={t.enterQuery}
-            className="w-full border-none outline-none font-dm-sans text-black p-5 text-lg"
+            className="w-full border-none outline-none font-dm-sans text-black p-5 text-lg resize-none min-h-[60px] max-h-[150px]"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && !isProcessing && performSearch()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey && !isProcessing) {
+                e.preventDefault();
+                performSearch();
+              }
+            }}
             disabled={isProcessing}
+            rows={1}
+            style={{ 
+              height: 'auto', 
+              overflowY: query && query.split('\n').length > 3 ? 'scroll' : 'hidden'
+            }}
+            ref={(textarea) => {
+              if (textarea) {
+                textarea.style.height = 'auto';
+                const newHeight = Math.min(textarea.scrollHeight, 150);
+                textarea.style.height = `${newHeight}px`;
+                
+                // Enable scrolling when content exceeds max height
+                if (textarea.scrollHeight > 150) {
+                  textarea.style.overflowY = 'scroll';
+                }
+              }
+            }}
           />
 
           <div className="flex justify-between items-center px-5 py-3">
