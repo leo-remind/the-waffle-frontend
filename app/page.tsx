@@ -20,7 +20,6 @@ import { HumanQuery, LLMResponse } from "./chat-ui";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import TableRenderer from "@/components/ui/table-renderer";
-import SpeechToText from "@/components/ours/speech2text";
 
 dayjs.extend(relativeTime);
 
@@ -96,29 +95,6 @@ function timeAgo(timestamp: any) {
   return dayjs(timestamp).fromNow();
 }
 
-const RecentChatsSkeleton = () => {
-  return (
-    <div className="w-full mt-8">
-      <div className="h-8 w-48 bg-neutral rounded-lg animate-pulse mb-4"></div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[...Array(6)].map((_, i) => (
-          <div
-            key={i}
-            className="bg-neutral rounded-3xl p-6 border-transparent transition-colors duration-200"
-            style={{ borderWidth: "3px" }}
-          >
-            <div className="flex items-start mb-2">
-              <div className="w-5 h-5 mt-1 mr-2 bg-gray-300 rounded-md animate-pulse"></div>
-              <div className="h-5 bg-gray-300 rounded-md animate-pulse w-3/4"></div>
-            </div>
-            <div className="w-1/3 h-4 mt-2 bg-gray-300 rounded-md animate-pulse"></div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
 export default function Home() {
   const [fileUploaded, setFileUploaded] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -133,20 +109,7 @@ export default function Home() {
   const [posts, setPosts] = useState([]);
   const [tables, setTables] = useState([] as any[]);
   const [svgData, setSVGData] = useState("");
-  const [isLoadingChats, setIsLoadingChats] = useState<boolean>(true);
-  // const [fileURL, setFileURL] = useState<string>("");
 
-  // const getFileURL = (filename: string) => {
-  //   fetch(`http://localhost:8000/pdf/${filename}`)
-  //     .then((res) => {
-  //       console.log(res);
-  //       return res.url;
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error fetching PDF:", error);
-  //       return "";
-  //     });
-  // };
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
@@ -164,7 +127,6 @@ export default function Home() {
 
         if (result.success) {
           setFileName(result.filename);
-          // setFileURL(getFileURL(result.filename));
           setFileUploaded(true);
           setUploadError(null);
         } else {
@@ -180,23 +142,12 @@ export default function Home() {
   };
 
   useEffect(() => {
-    // MODIFIED: Added loading state handling
-    setIsLoadingChats(true);
     try {
       fetch("http://localhost:8000/available-pdfs")
         .then((res) => res.json())
-        .then((data) => {
-          setPosts(data.files);
-          // ADDED: Set loading to false when data is fetched
-          setIsLoadingChats(false);
-        })
-        .catch((error) => {
-          console.error("Error fetching PDFs:", error);
-          setIsLoadingChats(false);
-        });
+        .then((data) => setPosts(data.files));
     } catch (e) {
       console.error(e);
-      setIsLoadingChats(false);
     }
   }, []);
 
@@ -242,9 +193,6 @@ export default function Home() {
     setFileUploaded(false);
     setFileName("");
     setUploadError(null);
-    setChatHistory([]);
-    setTables([]);
-    // setFileURL("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -302,21 +250,19 @@ export default function Home() {
                 <div className="py-1">
                   <button
                     onClick={() => changeLanguage("english")}
-                    className={`w-full text-left px-4 py-3 text-sm text-text-primary ${
-                      language === "english"
-                        ? "bg-primary bg-opacity-10 rounded-2xl text-white"
-                        : "hover:bg-gray-100 rounded-2xl"
-                    }`}
+                    className={`w-full text-left px-4 py-3 text-sm text-text-primary ${language === "english"
+                      ? "bg-primary bg-opacity-10 rounded-2xl text-white"
+                      : "hover:bg-gray-100 rounded-2xl"
+                      }`}
                   >
                     English
                   </button>
                   <button
                     onClick={() => changeLanguage("hindi")}
-                    className={`w-full text-left px-4 py-3 text-sm text-text-primary ${
-                      language === "hindi"
-                        ? "bg-primary bg-opacity-10 rounded-2xl text-white"
-                        : "hover:bg-gray-100 rounded-2xl"
-                    }`}
+                    className={`w-full text-left px-4 py-3 text-sm text-text-primary ${language === "hindi"
+                      ? "bg-primary bg-opacity-10 rounded-2xl text-white"
+                      : "hover:bg-gray-100 rounded-2xl"
+                      }`}
                   >
                     हिंदी
                   </button>
@@ -324,6 +270,17 @@ export default function Home() {
               </motion.div>
             )}
           </div>
+          <Button
+            variant="outline"
+            size="icon"
+            className="rounded-full bg-primary text-secondary-foreground hover:bg-secondary h-12 w-12"
+          >
+            <img
+              src="/accessibility.png"
+              alt="Accessibility"
+              className="h-6 w-6"
+            />
+          </Button>
         </div>
       </header>
 
@@ -351,11 +308,9 @@ export default function Home() {
               <motion.div
                 initial={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className={`w-full border-4 border-dashed ${
-                  uploadError ? "border-red-500" : "border-text-primary"
-                } rounded-3xl p-10 flex flex-col items-center justify-center cursor-pointer hover:bg-[#1C80E320] transition-all group ${
-                  !isUploading ? "hover:border-primary hover:border-solid" : ""
-                }`}
+                className={`w-full border-4 border-dashed ${uploadError ? "border-red-500" : "border-text-primary"
+                  } rounded-3xl p-10 flex flex-col items-center justify-center cursor-pointer hover:bg-[#1C80E320] transition-all group ${!isUploading ? "hover:border-primary hover:border-solid" : ""
+                  }`}
                 onClick={!isUploading ? triggerFileInput : undefined}
               >
                 <input
@@ -397,18 +352,16 @@ export default function Home() {
                 ) : (
                   <>
                     <div
-                      className={`text-text-primary mb-4 group-hover:text-primary ${
-                        uploadError ? "text-red-500" : ""
-                      }`}
+                      className={`text-text-primary mb-4 group-hover:text-primary ${uploadError ? "text-red-500" : ""
+                        }`}
                     >
                       <FiUpload className="w-36 h-36" />
                     </div>
                     <p
-                      className={`text-2xl font-dm-sans ${
-                        uploadError
-                          ? "text-red-500"
-                          : "text-text-primary group-hover:text-primary"
-                      }`}
+                      className={`text-2xl font-dm-sans ${uploadError
+                        ? "text-red-500"
+                        : "text-text-primary group-hover:text-primary"
+                        }`}
                     >
                       {uploadError || t.uploadPrompt}
                     </p>
@@ -416,47 +369,63 @@ export default function Home() {
                 )}
               </motion.div>
 
-              {isLoadingChats ? (
-                <RecentChatsSkeleton />
-              ) : (
-                <div className="w-full mt-8">
-                  <h2 className="text-2xl font-dm-sans font-semibold text-text-primary mb-4">
-                    {t.recentChats}
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {Array.isArray(posts) && posts.length > 0 ? (
-                      posts.map((data: any, i) => (
-                        <button
-                          key={i}
-                          onClick={() => (
-                            setFileUploaded(true), setFileName(data.name)
-                          )}
-                          className="w-full"
+              {/* 
+              <div className="flex gap-2 mt-4 self-start">
+                {["Graphs", "Explain"].map((tag) => (
+                  <Button
+                    key={tag}
+                    variant="outline"
+                    className={`rounded-full font-dm-sans ${
+                      isTagSelected(tag)
+                        ? `bg-opacity-50 text-white border-[${getTagColor(tag)}] bg-[${getTagColor(tag)}]`
+                        : `bg-background text-[${getTagColor(tag)}] border-[${getTagColor(tag)}]`
+                    }`}
+                    style={{
+                      borderColor: getTagColor(tag),
+                      color: isTagSelected(tag) ? "white" : getTagColor(tag),
+                      backgroundColor: isTagSelected(tag) ? `${getTagColor(tag)}80` : "transparent",
+                    }}
+                    onClick={() => toggleTag(tag)}
+                  >
+                    {getTagIcon(tag)} {tag}
+                  </Button>
+                ))}
+              </div> */}
+
+              <div className="w-full mt-8">
+                <h2 className="text-2xl font-dm-sans font-semibold text-text-primary mb-4">
+                  {t.recentChats}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {Array.isArray(posts) ? (
+                    posts.map((data: any, i) => (
+                      <button key={i}
+                        onClick={() => (
+                          setFileUploaded(true), setFileName(data.name)
+                        )}
+                        className="w-full"
+                      >
+                        <div
+                          className="bg-neutral rounded-3xl p-6 hover:bg-[#DADADA] border-transparent hover:border-text-secondary transition-colors duration-200 cursor-pointer"
+                          style={{ borderWidth: "3px" }}
                         >
-                          <div
-                            className="bg-neutral rounded-3xl p-6 hover:bg-[#DADADA] border-transparent hover:border-text-secondary transition-colors duration-200 cursor-pointer text-left"
-                            style={{ borderWidth: "3px" }}
-                          >
-                            <div className="flex items-start mb-2">
-                              <FaComments className="text-text-secondary mt-1 mr-2 flex-shrink-0" />
-                              <h3 className="font-dm-sans text-text-primary font-medium text-bold truncate overflow-hidden">
-                                Chat with {data.name}
-                              </h3>
-                            </div>
-                            <p className="text-base font-dm-sans text-text-secondary font-bold">
-                              {timeAgo(data.created_at)}
-                            </p>
+                          <div className="flex items-start mb-2">
+                            <FaComments className="text-text-secondary mt-1 mr-2" />
+                            <h3 className="font-dm-sans text-text-primary font-medium text-bold">
+                              Chat with {data.name}
+                            </h3>
                           </div>
-                        </button>
-                      ))
-                    ) : (
-                      <p className="text-text-secondary col-span-3 text-center py-8">
-                        No recent chats
-                      </p>
-                    )}
-                  </div>
+                          <p className="text-base font-dm-sans text-text-secondary font-bold">
+                            {timeAgo(data.created_at)}
+                          </p>
+                        </div>
+                      </button>
+                    ))
+                  ) : (
+                    <p>No recent chats</p>
+                  )}
                 </div>
-              )}
+              </div>
             </>
           ) : (
             <motion.div
@@ -464,9 +433,9 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="w-full flex-grow flex flex-col h-full overflow-auto mb-96"
+              className="flex-grow flex flex-col h-full overflow-auto mb-96"
             >
-              <div className="flex flex-col items-end w-full">
+              <div className="flex flex-col items-end">
                 {chatHistory.map((historyItem, index) =>
                   historyItem.role === "llm" ? (
                     <LLMResponse
@@ -488,7 +457,6 @@ export default function Home() {
               <div className="fixed bottom-0 left-0 right-0 mb-6 mx-auto max-w-3xl w-11/12">
                 <RagQueryInterface
                   fileName={fileName}
-                  fileURL={`http://localhost:8000/pdf/${fileName}`}
                   onReset={resetUpload}
                   selectedTags={selectedTags}
                   toggleTag={toggleTag}
