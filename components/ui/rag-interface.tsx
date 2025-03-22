@@ -199,6 +199,9 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
 
       if (message["isStreaming"]) {
         setResults([message["message"]].concat(results))
+        if (message["tables"] && message["tables"].length > 0) {
+          setTables(message["tables"].map((table: string) => JSON.parse(table)));
+        }
       }
       else {
         setChatHistory(chatHistory.concat([
@@ -211,8 +214,6 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
             value: message["message"]
           } as ChatHistory
         ]))
-        console.log("set tables to ", message["tables"].map((table: string) => JSON.parse(table)))
-        setTables(message["tables"].map((table: string) => JSON.parse(table)));
         setQuery("")
         setStatus('Query complete.');
         setIsProcessing(false);

@@ -10,6 +10,7 @@ const TableRenderer = ({ jsonData }) => {
     <div>
       {jsonData.map((tableObj, tableIndex) => (
         <div key={tableIndex} className="table-container mb-8">
+          {tableIndex > 0 && <div className="border-t border-gray-300 pt-12 mb-8"></div>}
           <div className="mb-4">
             <h2 className="text-xl font-bold">Table {tableIndex + 1}</h2>
             <p>

@@ -4,28 +4,31 @@ import html from 'remark-html';
 import { FaChartLine, FaTable } from 'react-icons/fa6';
 import { FaTimes } from 'react-icons/fa';
 import './markdown-styles.css'; // Import custom CSS for markdown styling
+import TableRenderer from '@/components/ui/table-renderer';
 
 export function LLMResponse({
-    value
-} : {
-    value : string
+    value,
+    tables
+}: {
+    value: string,
+    tables: any[]
 }) {
     const [processedContent, setProcessedContent] = useState('');
     const [showVisualization, setShowVisualization] = useState(false);
     const [activeTab, setActiveTab] = useState<'table' | 'chart'>('table');
     const responseRef = useRef<HTMLDivElement>(null);
-    
+
     useEffect(() => {
         const processMarkdown = async () => {
             const result = await remark()
                 .use(html)
                 .process(value);
-            
+
             setProcessedContent(result.toString());
         };
-        
+
         processMarkdown();
-        
+
         // Add the split layout styles if they don't exist
         if (!document.getElementById('split-layout-styles')) {
             const style = document.createElement('style');
@@ -119,19 +122,20 @@ export function LLMResponse({
             document.head.appendChild(style);
         }
     }, []);
-    
+
+    let sampleTableData: any[]= []
     useEffect(() => {
         // Adjust the body class when visualization is shown/hidden
         if (showVisualization) {
             document.body.classList.add('visualization-open');
-            
+
             // Add event listener to handle escape key
             const handleEscape = (e: KeyboardEvent) => {
                 if (e.key === 'Escape') {
                     setShowVisualization(false);
                 }
             };
-            
+
             document.addEventListener('keydown', handleEscape);
             return () => {
                 document.removeEventListener('keydown', handleEscape);
@@ -140,22 +144,15 @@ export function LLMResponse({
             document.body.classList.remove('visualization-open');
         }
     }, [showVisualization]);
-    
+
     const handleVisualize = () => {
         setShowVisualization(true);
     };
-    
+
     const closeVisualization = () => {
         setShowVisualization(false);
     };
-    
-    // Sample data for visualization - in a real implementation, you would parse this from your response
-    const sampleTableData = [
-        { id: 1, name: 'Item 1', value: 100 },
-        { id: 2, name: 'Item 2', value: 200 },
-        { id: 3, name: 'Item 3', value: 150 },
-    ];
-    
+
     // Adding the app wrapper to manage layout
     useEffect(() => {
         // Check if we need to wrap the app
@@ -164,30 +161,30 @@ export function LLMResponse({
             // Create wrapper
             const wrapper = document.createElement('div');
             wrapper.className = 'app-container';
-            
+
             // Create chat container
             const chatContainer = document.createElement('div');
             chatContainer.className = 'chat-container';
-            
+
             // Move all existing body children to the chat container
             while (document.body.firstChild) {
                 chatContainer.appendChild(document.body.firstChild);
             }
-            
+
             // Append containers to the DOM
             wrapper.appendChild(chatContainer);
             document.body.appendChild(wrapper);
         }
     }, []);
-    
-   
+
+
     return (
         <>
-            <div 
+            <div
                 className="relative p-4 pb-14 bg-transparent rounded-[16px] my-4 w-full text-left"
                 ref={responseRef}
             >
-                <div 
+                <div
                     className="absolute bottom-2 left-2 z-10"
                 >
                     <button
@@ -198,35 +195,35 @@ export function LLMResponse({
                         <span className="text-sm font-medium font-dm-sans">Visualize with table and charts</span>
                     </button>
                 </div>
-                
-                <div 
+
+                <div
                     className="markdown-content llm-markdown text-lg font-medium font-dm-sans"
                     dangerouslySetInnerHTML={{ __html: processedContent }}
                 />
             </div>
-            
+
             {/* Visualization panel */}
             <div className={`visualization-panel ${showVisualization ? 'open' : ''}`}>
                 <div className="visualization-header">
                     <h2 className="text-xl font-bold font-dm-sans">Visualization</h2>
-                    <button 
+                    <button
                         onClick={closeVisualization}
                         className="p-1 rounded-full hover:bg-gray-100"
                     >
                         <FaTimes className="h-5 w-5" />
                     </button>
                 </div>
-                
+
                 <div className="visualization-content">
                     <div className="tab-container">
-                        <div 
+                        <div
                             className={`tab font-dm-sans ${activeTab === 'table' ? 'active' : ''}`}
                             onClick={() => setActiveTab('table')}
                         >
                             <FaTable className="h-4 w-4" />
                             <span>Table View</span>
                         </div>
-                        <div 
+                        <div
                             className={`tab font-dm-sans ${activeTab === 'chart' ? 'active' : ''}`}
                             onClick={() => setActiveTab('chart')}
                         >
@@ -234,28 +231,11 @@ export function LLMResponse({
                             <span>Chart View</span>
                         </div>
                     </div>
-                    
+
                     <div className="tab-panel">
                         {activeTab === 'table' ? (
                             <div className="overflow-x-auto">
-                                <table className="w-full border-collapse">
-                                    <thead>
-                                        <tr className="bg-gray-100">
-                                            <th className="p-2 border text-left">ID</th>
-                                            <th className="p-2 border text-left">Name</th>
-                                            <th className="p-2 border text-right">Value</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {sampleTableData.map(item => (
-                                            <tr key={item.id}>
-                                                <td className="p-2 border">{item.id}</td>
-                                                <td className="p-2 border">{item.name}</td>
-                                                <td className="p-2 border text-right">{item.value}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                <TableRenderer jsonData={tables} />
                             </div>
                         ) : (
                             <div className="flex items-center justify-center h-full">
@@ -264,7 +244,7 @@ export function LLMResponse({
                                     <div className="flex items-end justify-center h-40 gap-4">
                                         {sampleTableData.map(item => (
                                             <div key={item.id} className="flex flex-col items-center">
-                                                <div 
+                                                <div
                                                     className="w-16 bg-primary"
                                                     style={{ height: `${item.value / 2}px` }}
                                                 ></div>
@@ -278,10 +258,11 @@ export function LLMResponse({
                     </div>
                 </div>
             </div>
-            
+
             {/* Add script to manipulate DOM structure */}
             {showVisualization && (
-                <script dangerouslySetInnerHTML={{ __html: `
+                <script dangerouslySetInnerHTML={{
+                    __html: `
                     (function() {
                         const chatContainer = document.querySelector('.chat-container');
                         if (chatContainer) {
@@ -290,9 +271,10 @@ export function LLMResponse({
                     })();
                 `}} />
             )}
-            
+
             {!showVisualization && (
-                <script dangerouslySetInnerHTML={{ __html: `
+                <script dangerouslySetInnerHTML={{
+                    __html: `
                     (function() {
                         const chatContainer = document.querySelector('.chat-container');
                         if (chatContainer) {
@@ -308,26 +290,26 @@ export function LLMResponse({
 
 export function HumanQuery({
     value
-} : {
-    value : string
+}: {
+    value: string
 }) {
     const [processedContent, setProcessedContent] = useState('');
-    
+
     useEffect(() => {
         const processMarkdown = async () => {
             const result = await remark()
                 .use(html)
                 .process(value);
-            
+
             setProcessedContent(result.toString());
         };
-        
+
         processMarkdown();
     }, [value]);
-    
+
     return (
         <div className="p-4 bg-primary rounded-[16px] max-w-1/2 w-fit my-4">
-            <div 
+            <div
                 className="markdown-content human-markdown text-lg font-medium text-white font-dm-sans"
                 dangerouslySetInnerHTML={{ __html: processedContent }}
             />

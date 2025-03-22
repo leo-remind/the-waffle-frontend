@@ -440,6 +440,7 @@ export default function Home() {
                     <LLMResponse
                       key={`response-${index}`}
                       value={historyItem.value}
+                      tables={tables}
                     />
                   ) : (
                     <HumanQuery
@@ -448,10 +449,6 @@ export default function Home() {
                     />
                   )
                 )}
-              </div>
-              {/*this needs to be put in the sidebar*/}
-              <div className="flex flex-col items-end">
-                <TableRenderer jsonData={tables} />
               </div>
               <div className="flex-grow" />{" "}
               {/* This creates space above the interface */}
