@@ -176,7 +176,8 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
     const data = {
       query: queryText,
       graph: graphParam,
-      verbose: verboseParam
+      verbose: verboseParam,
+      pdf_name: fileName
     };
     
     websocketRef.current = socket;
