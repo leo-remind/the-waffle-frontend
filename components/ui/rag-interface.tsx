@@ -25,7 +25,8 @@ interface RagQueryProps {
     };
   };
   setChatHistory: (arg: ChatHistory[]) => void
-  chatHistory: ChatHistory[]
+  chatHistory: ChatHistory[],
+  setTables: (arg: any[]) => void
 }
 
 const RagQueryInterface: React.FC<RagQueryProps> = ({
@@ -39,7 +40,8 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
   language,
   translations,
   setChatHistory,
-  chatHistory
+  chatHistory,
+  setTables
 }) => {
   const [query, setQuery] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -248,6 +250,9 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
 
       if (message["isStreaming"]) {
         setResults([message["message"]].concat(results))
+        if (message["tables"] && message["tables"].length > 0) {
+          setTables(message["tables"].map((table: string) => JSON.parse(table)));
+        }
       }
       else {
         // Only add the AI response to chat history (user message was already added)
@@ -362,7 +367,7 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
 
           <div className="flex justify-between items-center px-5 py-3">
             <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
-              {["Graphs", "Explain", "Reason"].map((tag) => (
+              {["Graphs", "Explain"].map((tag) => (
                 <Button
                   key={tag}
                   className="rounded-full border-2 font-dm-sans transition-all font-semibold duration-200 ease-in-out hover:shadow-md text-sm py-2 px-3 h-auto flex-shrink-0 text-md"

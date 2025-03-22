@@ -19,6 +19,7 @@ import { FiUpload } from "react-icons/fi";
 import { HumanQuery, LLMResponse } from "./chat-ui";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import TableRenderer from "@/components/ui/table-renderer";
 
 dayjs.extend(relativeTime);
 
@@ -31,7 +32,7 @@ const translations = {
     enterQuery: "Enter your query",
     language: "English",
     uploadError: "Error uploading file. Please try again.",
-    uploadingFile: "Uploading file...",
+    uploadingFile: "Uploading & processing file...",
     pdfOnly: "Only PDF files are allowed",
   },
   hindi: {
@@ -41,7 +42,7 @@ const translations = {
     enterQuery: "अपना प्रश्न दर्ज करें",
     language: "हिंदी",
     uploadError: "फ़ाइल अपलोड करने में त्रुटि। कृपया पुन: प्रयास करें।",
-    uploadingFile: "फ़ाइल अपलोड हो रही है...",
+    uploadingFile: "फ़ाइल अपलोड और संसाधित की जा रही है...",
     pdfOnly: "केवल पीडीएफ फाइलें अनुमत हैं",
   },
 };
@@ -106,6 +107,7 @@ export default function Home() {
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [posts, setPosts] = useState([]);
+  const [tables, setTables] = useState([] as any[]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -170,8 +172,6 @@ export default function Home() {
         return "#E3513E";
       case "Explain":
         return "#07942D";
-      case "Reason":
-        return "#4B0794";
       default:
         return "#000000";
     }
@@ -183,8 +183,6 @@ export default function Home() {
         return <FaChartLine className="mr-2" />;
       case "Explain":
         return <FaBrain className="mr-2" />;
-      case "Reason":
-        return <FaQuestion className="mr-2" />;
       default:
         return null;
     }
@@ -251,21 +249,19 @@ export default function Home() {
                 <div className="py-1">
                   <button
                     onClick={() => changeLanguage("english")}
-                    className={`w-full text-left px-4 py-3 text-sm text-text-primary ${
-                      language === "english"
-                        ? "bg-primary bg-opacity-10 rounded-2xl text-white"
-                        : "hover:bg-gray-100 rounded-2xl"
-                    }`}
+                    className={`w-full text-left px-4 py-3 text-sm text-text-primary ${language === "english"
+                      ? "bg-primary bg-opacity-10 rounded-2xl text-white"
+                      : "hover:bg-gray-100 rounded-2xl"
+                      }`}
                   >
                     English
                   </button>
                   <button
                     onClick={() => changeLanguage("hindi")}
-                    className={`w-full text-left px-4 py-3 text-sm text-text-primary ${
-                      language === "hindi"
-                        ? "bg-primary bg-opacity-10 rounded-2xl text-white"
-                        : "hover:bg-gray-100 rounded-2xl"
-                    }`}
+                    className={`w-full text-left px-4 py-3 text-sm text-text-primary ${language === "hindi"
+                      ? "bg-primary bg-opacity-10 rounded-2xl text-white"
+                      : "hover:bg-gray-100 rounded-2xl"
+                      }`}
                   >
                     हिंदी
                   </button>
@@ -311,11 +307,9 @@ export default function Home() {
               <motion.div
                 initial={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className={`w-full border-4 border-dashed ${
-                  uploadError ? "border-red-500" : "border-text-primary"
-                } rounded-3xl p-10 flex flex-col items-center justify-center cursor-pointer hover:bg-[#1C80E320] transition-all group ${
-                  !isUploading ? "hover:border-primary hover:border-solid" : ""
-                }`}
+                className={`w-full border-4 border-dashed ${uploadError ? "border-red-500" : "border-text-primary"
+                  } rounded-3xl p-10 flex flex-col items-center justify-center cursor-pointer hover:bg-[#1C80E320] transition-all group ${!isUploading ? "hover:border-primary hover:border-solid" : ""
+                  }`}
                 onClick={!isUploading ? triggerFileInput : undefined}
               >
                 <input
@@ -357,18 +351,16 @@ export default function Home() {
                 ) : (
                   <>
                     <div
-                      className={`text-text-primary mb-4 group-hover:text-primary ${
-                        uploadError ? "text-red-500" : ""
-                      }`}
+                      className={`text-text-primary mb-4 group-hover:text-primary ${uploadError ? "text-red-500" : ""
+                        }`}
                     >
                       <FiUpload className="w-36 h-36" />
                     </div>
                     <p
-                      className={`text-2xl font-dm-sans ${
-                        uploadError
-                          ? "text-red-500"
-                          : "text-text-primary group-hover:text-primary"
-                      }`}
+                      className={`text-2xl font-dm-sans ${uploadError
+                        ? "text-red-500"
+                        : "text-text-primary group-hover:text-primary"
+                        }`}
                     >
                       {uploadError || t.uploadPrompt}
                     </p>
@@ -378,7 +370,7 @@ export default function Home() {
 
               {/* 
               <div className="flex gap-2 mt-4 self-start">
-                {["Graphs", "Explain", "Reason"].map((tag) => (
+                {["Graphs", "Explain"].map((tag) => (
                   <Button
                     key={tag}
                     variant="outline"
@@ -448,6 +440,7 @@ export default function Home() {
                     <LLMResponse
                       key={`response-${index}`}
                       value={historyItem.value}
+                      tables={tables}
                     />
                   ) : (
                     <HumanQuery
@@ -472,6 +465,7 @@ export default function Home() {
                   translations={translations}
                   setChatHistory={setChatHistory}
                   chatHistory={chatHistory}
+                  setTables={setTables}
                 />
               </div>
             </motion.div>
