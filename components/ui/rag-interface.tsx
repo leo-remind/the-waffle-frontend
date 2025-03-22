@@ -25,7 +25,8 @@ interface RagQueryProps {
     };
   };
   setChatHistory: (arg: ChatHistory[]) => void
-  chatHistory: ChatHistory[]
+  chatHistory: ChatHistory[],
+  setTables: (arg: any[]) => void
 }
 
 const RagQueryInterface: React.FC<RagQueryProps> = ({
@@ -39,7 +40,8 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
   language,
   translations,
   setChatHistory,
-  chatHistory
+  chatHistory,
+  setTables
 }) => {
   const [query, setQuery] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -209,6 +211,8 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
             value: message["message"]
           } as ChatHistory
         ]))
+        console.log("set tables to ", message["tables"].map((table: string) => JSON.parse(table)))
+        setTables(message["tables"].map((table: string) => JSON.parse(table)));
         setQuery("")
         setStatus('Query complete.');
         setIsProcessing(false);

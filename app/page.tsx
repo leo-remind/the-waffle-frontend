@@ -19,6 +19,7 @@ import { FiUpload } from "react-icons/fi";
 import { HumanQuery, LLMResponse } from "./chat-ui";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import TableRenderer from "@/components/ui/table-renderer";
 
 dayjs.extend(relativeTime);
 
@@ -106,6 +107,7 @@ export default function Home() {
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [posts, setPosts] = useState([]);
+  const [tables, setTables] = useState([] as any[]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -451,6 +453,10 @@ export default function Home() {
                   )
                 )}
               </div>
+              {/*this needs to be put in the sidebar*/}
+              <div className="flex flex-col items-end">
+                <TableRenderer jsonData={tables} />
+              </div>
               <div className="flex-grow" />{" "}
               {/* This creates space above the interface */}
               <div className="fixed bottom-0 left-0 right-0 mb-6 mx-auto max-w-3xl w-11/12">
@@ -466,6 +472,7 @@ export default function Home() {
                   translations={translations}
                   setChatHistory={setChatHistory}
                   chatHistory={chatHistory}
+                  setTables={setTables}
                 />
               </div>
             </motion.div>

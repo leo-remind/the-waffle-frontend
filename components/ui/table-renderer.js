@@ -13,7 +13,7 @@ const TableRenderer = ({ jsonData }) => {
           <div className="mb-4">
             <h2 className="text-xl font-bold">Table {tableIndex + 1}</h2>
             <p>
-              <strong>Title:</strong> {tableObj.meta.table_header}
+              <strong>Title:</strong> {tableObj.meta.table_heading}
             </p>
             <p>
               <strong>PDF URL:</strong>{" "}
@@ -47,19 +47,18 @@ const TableRenderer = ({ jsonData }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {Array.from({
-                    length: Object.values(tableObj.data)[0].length,
-                  }).map((_, rowIndex) => (
+                  {/* Get the number of rows by counting keys in the first column */}
+                  {Object.keys(Object.values(tableObj.data)[0]).map((rowKey) => (
                     <tr
-                      key={rowIndex}
-                      className={rowIndex % 2 === 0 ? "bg-gray-50" : "bg-white"}
+                      key={rowKey}
+                      className={Number(rowKey) % 2 === 0 ? "bg-gray-50" : "bg-white"}
                     >
                       {Object.keys(tableObj.data).map((colName, colIndex) => (
                         <td
                           key={colIndex}
                           className="border border-gray-300 px-4 py-2"
                         >
-                          {tableObj.data[colName][rowIndex] ?? ""}
+                          {tableObj.data[colName][rowKey]}
                         </td>
                       ))}
                     </tr>
