@@ -5,9 +5,11 @@ import { FaArrowUp, FaChartLine, FaBrain, FaQuestion } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
 import { ChatHistory } from "@/app/page";
 import SpeechToText from "../ours/speech2text";
+import Link from "next/link";
 
 interface RagQueryProps {
   fileName: string;
+  fileURL: string;
   onReset: () => void;
   selectedTags: string[];
   toggleTag: (tag: string) => void;
@@ -32,6 +34,7 @@ interface RagQueryProps {
 
 const RagQueryInterface: React.FC<RagQueryProps> = ({
   fileName,
+  fileURL,
   onReset,
   selectedTags,
   toggleTag,
@@ -349,9 +352,9 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
 
       <div className="bg-[#F5F5F5] flex items-center p-6 rounded-t-2xl w-[95%] mx-auto">
         <div className="relative">
-          <div className="bg-white px-4 py-4 rounded-2xl font-dm-sans text-base">
+          <Link className="bg-white px-4 py-4 rounded-2xl font-dm-sans text-base hover:underline" href={fileURL} target="_blank">
             {fileName}
-          </div>
+          </Link>
           <Button
             variant="ghost"
             size="icon"
