@@ -223,7 +223,7 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
     const verboseParam = isTagSelected("Explain");
 
     // Create a new WebSocket connection
-    const socket = new WebSocket(`ws://10.1.147.58:8000/query/ws`);
+    const socket = new WebSocket(`ws://localhost:8000/query/ws`);
 
     // Prepare data constant to be sent
     const data = {

@@ -58,7 +58,7 @@ const uploadPdfToBackend = async (file: File) => {
   formData.append("file", file);
 
   try {
-    const response = await fetch("http://10.1.147.58:8000/upload/pdf", {
+    const response = await fetch("http://localhost:8000/upload/pdf", {
       method: "POST",
       body: formData,
       // Remove credentials setting completely
@@ -169,7 +169,7 @@ export default function Home() {
     // MODIFIED: Added loading state handling
     setIsLoadingChats(true);
     try {
-      fetch("http://10.1.147.58:8000/available-pdfs")
+      fetch("http://localhost:8000/available-pdfs")
         .then((res) => res.json())
         .then((data) => {
           setPosts(data.files);
