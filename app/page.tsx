@@ -135,9 +135,13 @@ export default function Home() {
   };
 
   useEffect(() => {
+    try {
     fetch("http://localhost:8000/available-pdfs")
       .then((res) => res.json())
-      .then((data) => setPosts(data))
+      .then((data) => setPosts(data));
+    } catch(e) {
+      console.error(e);
+    }
   }, []);
 
   const triggerFileInput = () => {
