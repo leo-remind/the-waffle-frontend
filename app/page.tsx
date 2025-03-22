@@ -421,7 +421,7 @@ export default function Home() {
                           className="w-full"
                         >
                           <div
-                            className="bg-neutral rounded-3xl p-6 hover:bg-[#DADADA] border-transparent hover:border-text-secondary transition-colors duration-200 cursor-pointer"
+                            className="bg-neutral rounded-3xl p-6 hover:bg-[#DADADA] border-transparent hover:border-text-secondary transition-colors duration-200 cursor-pointer text-ellipsis text-left"
                             style={{ borderWidth: "3px" }}
                           >
                             <div className="flex items-start mb-2">

@@ -317,18 +317,20 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
       </div>
 
       <div className="bg-[#F5F5F5] flex items-center p-6 rounded-t-2xl w-[95%] mx-auto">
-        <div className="w-fit h-fit">
-          <div className="bg-white px-4 py-4 rounded-2xl font-dm-sans text-base">{fileName}</div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 rounded-full ml-3 bg-[#333] text-white flex items-center justify-center absolute left-6 bottom-52 hover:bg-primary"
-            onClick={onReset}
-          >
-            <span className="text-sm">✕</span>
-          </Button>
-        </div>
-      </div>
+  <div className="relative">
+    <div className="bg-white px-4 py-4 rounded-2xl font-dm-sans text-base">
+      {fileName}
+    </div>
+    <Button 
+      variant="ghost" 
+      size="icon" 
+      className="h-7 w-7 rounded-full bg-[#333] text-white flex items-center justify-center hover:bg-primary absolute -top-3 -left-3"
+      onClick={onReset}
+    >
+      <span className="text-sm">✕</span>
+    </Button>
+  </div>
+</div>
 
       {/* Chat interface */}
       <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl border border-gray-300 overflow-hidden shadow-lg">
