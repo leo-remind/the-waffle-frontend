@@ -31,7 +31,7 @@ const translations = {
     enterQuery: "Enter your query",
     language: "English",
     uploadError: "Error uploading file. Please try again.",
-    uploadingFile: "Uploading file...",
+    uploadingFile: "Uploading & processing file...",
     pdfOnly: "Only PDF files are allowed",
   },
   hindi: {
@@ -41,7 +41,7 @@ const translations = {
     enterQuery: "अपना प्रश्न दर्ज करें",
     language: "हिंदी",
     uploadError: "फ़ाइल अपलोड करने में त्रुटि। कृपया पुन: प्रयास करें।",
-    uploadingFile: "फ़ाइल अपलोड हो रही है...",
+    uploadingFile: "फ़ाइल अपलोड और संसाधित की जा रही है...",
     pdfOnly: "केवल पीडीएफ फाइलें अनुमत हैं",
   },
 };
@@ -251,21 +251,19 @@ export default function Home() {
                 <div className="py-1">
                   <button
                     onClick={() => changeLanguage("english")}
-                    className={`w-full text-left px-4 py-3 text-sm text-text-primary ${
-                      language === "english"
-                        ? "bg-primary bg-opacity-10 rounded-2xl text-white"
-                        : "hover:bg-gray-100 rounded-2xl"
-                    }`}
+                    className={`w-full text-left px-4 py-3 text-sm text-text-primary ${language === "english"
+                      ? "bg-primary bg-opacity-10 rounded-2xl text-white"
+                      : "hover:bg-gray-100 rounded-2xl"
+                      }`}
                   >
                     English
                   </button>
                   <button
                     onClick={() => changeLanguage("hindi")}
-                    className={`w-full text-left px-4 py-3 text-sm text-text-primary ${
-                      language === "hindi"
-                        ? "bg-primary bg-opacity-10 rounded-2xl text-white"
-                        : "hover:bg-gray-100 rounded-2xl"
-                    }`}
+                    className={`w-full text-left px-4 py-3 text-sm text-text-primary ${language === "hindi"
+                      ? "bg-primary bg-opacity-10 rounded-2xl text-white"
+                      : "hover:bg-gray-100 rounded-2xl"
+                      }`}
                   >
                     हिंदी
                   </button>
@@ -311,11 +309,9 @@ export default function Home() {
               <motion.div
                 initial={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className={`w-full border-4 border-dashed ${
-                  uploadError ? "border-red-500" : "border-text-primary"
-                } rounded-3xl p-10 flex flex-col items-center justify-center cursor-pointer hover:bg-[#1C80E320] transition-all group ${
-                  !isUploading ? "hover:border-primary hover:border-solid" : ""
-                }`}
+                className={`w-full border-4 border-dashed ${uploadError ? "border-red-500" : "border-text-primary"
+                  } rounded-3xl p-10 flex flex-col items-center justify-center cursor-pointer hover:bg-[#1C80E320] transition-all group ${!isUploading ? "hover:border-primary hover:border-solid" : ""
+                  }`}
                 onClick={!isUploading ? triggerFileInput : undefined}
               >
                 <input
@@ -357,18 +353,16 @@ export default function Home() {
                 ) : (
                   <>
                     <div
-                      className={`text-text-primary mb-4 group-hover:text-primary ${
-                        uploadError ? "text-red-500" : ""
-                      }`}
+                      className={`text-text-primary mb-4 group-hover:text-primary ${uploadError ? "text-red-500" : ""
+                        }`}
                     >
                       <FiUpload className="w-36 h-36" />
                     </div>
                     <p
-                      className={`text-2xl font-dm-sans ${
-                        uploadError
-                          ? "text-red-500"
-                          : "text-text-primary group-hover:text-primary"
-                      }`}
+                      className={`text-2xl font-dm-sans ${uploadError
+                        ? "text-red-500"
+                        : "text-text-primary group-hover:text-primary"
+                        }`}
                     >
                       {uploadError || t.uploadPrompt}
                     </p>
