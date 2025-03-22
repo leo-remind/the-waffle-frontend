@@ -439,7 +439,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex-grow flex flex-col h-full overflow-auto mb-96"
+              className="w-full flex-grow flex flex-col h-full overflow-auto mb-96"
             >
               <div className="flex flex-col items-end w-full">
                 {chatHistory.map((historyItem, index) =>
