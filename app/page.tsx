@@ -305,17 +305,6 @@ export default function Home() {
               </motion.div>
             )}
           </div>
-          <Button
-            variant="outline"
-            size="icon"
-            className="rounded-full bg-primary text-secondary-foreground hover:bg-secondary h-12 w-12"
-          >
-            <img
-              src="/accessibility.png"
-              alt="Accessibility"
-              className="h-6 w-6"
-            />
-          </Button>
         </div>
       </header>
 

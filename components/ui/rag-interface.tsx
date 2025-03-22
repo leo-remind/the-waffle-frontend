@@ -340,7 +340,7 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
     <Button 
       variant="ghost" 
       size="icon" 
-      className="h-7 w-7 rounded-full bg-[#333] text-white flex items-center justify-center hover:bg-primary absolute -top-3 -left-3"
+      className="h-7 w-7 rounded-full bg-[#333] text-white flex items-center justify-center hover:bg-[#191919] absolute -top-3 -left-3"
       onClick={onReset}
     >
       <span className="text-sm">✕</span>
