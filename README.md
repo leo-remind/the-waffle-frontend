@@ -1,2 +1,2 @@
-# the-waffle
-IIT Gn Hackathon
+# the-waffle-frontend
+frontend code for The Waffle
