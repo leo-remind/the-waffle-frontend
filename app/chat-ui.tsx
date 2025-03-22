@@ -8,10 +8,12 @@ import TableRenderer from '@/components/ui/table-renderer';
 
 export function LLMResponse({
     value,
-    tables
+    tables,
+    svgData
 }: {
     value: string,
-    tables: any[]
+    tables: any[],
+    svgData: string
 }) {
     const [processedContent, setProcessedContent] = useState('');
     const [showVisualization, setShowVisualization] = useState(false);
@@ -239,20 +241,9 @@ export function LLMResponse({
                             </div>
                         ) : (
                             <div className="flex items-center justify-center h-full">
-                                <div className="text-center">
-                                    <div className="mb-2">Sample Chart View</div>
-                                    <div className="flex items-end justify-center h-40 gap-4">
-                                        {sampleTableData.map(item => (
-                                            <div key={item.id} className="flex flex-col items-center">
-                                                <div
-                                                    className="w-16 bg-primary"
-                                                    style={{ height: `${item.value / 2}px` }}
-                                                ></div>
-                                                <div className="mt-2">{item.name}</div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
+                            <div className="flex items-center justify-center h-full" 
+     dangerouslySetInnerHTML={{ __html: svgData }}>
+</div>
                             </div>
                         )}
                     </div>

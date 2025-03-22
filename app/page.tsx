@@ -108,6 +108,7 @@ export default function Home() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [posts, setPosts] = useState([]);
   const [tables, setTables] = useState([] as any[]);
+  const [svgData, setSVGData] = useState("");
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -441,6 +442,7 @@ export default function Home() {
                       key={`response-${index}`}
                       value={historyItem.value}
                       tables={tables}
+                      svgData={svgData}
                     />
                   ) : (
                     <HumanQuery
@@ -466,6 +468,7 @@ export default function Home() {
                   setChatHistory={setChatHistory}
                   chatHistory={chatHistory}
                   setTables={setTables}
+                  setSVGData={setSVGData}
                 />
               </div>
             </motion.div>

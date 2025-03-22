@@ -26,7 +26,8 @@ interface RagQueryProps {
   };
   setChatHistory: (arg: ChatHistory[]) => void
   chatHistory: ChatHistory[],
-  setTables: (arg: any[]) => void
+  setTables: (arg: any[]) => void,
+  setSVGData: (arg: any) => void
 }
 
 const RagQueryInterface: React.FC<RagQueryProps> = ({
@@ -41,7 +42,8 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
   translations,
   setChatHistory,
   chatHistory,
-  setTables
+  setTables,
+  setSVGData,
 }) => {
   const [query, setQuery] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -267,6 +269,7 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
             value: message["message"]
           } as ChatHistory
         ])
+        setSVGData(message["graph_code"])
         setStatus('Query complete.');
         setIsProcessing(false);
       }
