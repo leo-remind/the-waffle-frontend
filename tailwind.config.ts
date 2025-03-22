@@ -68,7 +68,6 @@ const config = {
         },
         graphs: "#E3513E",
         explain: "#07942D",
-        reason: "#4B0794",
       },
       borderRadius: {
         lg: "var(--radius)",

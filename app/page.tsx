@@ -172,8 +172,6 @@ export default function Home() {
         return "#E3513E";
       case "Explain":
         return "#07942D";
-      case "Reason":
-        return "#4B0794";
       default:
         return "#000000";
     }
@@ -185,8 +183,6 @@ export default function Home() {
         return <FaChartLine className="mr-2" />;
       case "Explain":
         return <FaBrain className="mr-2" />;
-      case "Reason":
-        return <FaQuestion className="mr-2" />;
       default:
         return null;
     }
@@ -374,7 +370,7 @@ export default function Home() {
 
               {/* 
               <div className="flex gap-2 mt-4 self-start">
-                {["Graphs", "Explain", "Reason"].map((tag) => (
+                {["Graphs", "Explain"].map((tag) => (
                   <Button
                     key={tag}
                     variant="outline"

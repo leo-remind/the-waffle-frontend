@@ -293,7 +293,7 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
 
           <div className="flex justify-between items-center px-5 py-3">
             <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
-              {["Graphs", "Explain", "Reason"].map((tag) => (
+              {["Graphs", "Explain"].map((tag) => (
                 <Button
                   key={tag}
                   className="rounded-full border-2 font-dm-sans transition-all font-semibold duration-200 ease-in-out hover:shadow-md text-sm py-2 px-3 h-auto flex-shrink-0 text-md"
