@@ -285,6 +285,7 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
         setSVGData(message["graph_code"])
         setStatus('Query complete.');
         setIsProcessing(false);
+        setChatHistory(newChatHistory);
       }
     };
 
