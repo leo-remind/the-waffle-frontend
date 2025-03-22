@@ -21,6 +21,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import TableRenderer from "@/components/ui/table-renderer";
 import SpeechToText from "@/components/ours/speech2text";
+import { translateText } from "@/lib/utils";
 
 dayjs.extend(relativeTime);
 
@@ -471,7 +472,7 @@ export default function Home() {
                   historyItem.role === "llm" ? (
                     <LLMResponse
                       key={`response-${index}`}
-                      value={historyItem.value}
+                      value={language == "hindi" ? historyItem.value + "\n" + translateText(historyItem.value) : historyItem.value}
                       tables={tables}
                       svgData={svgData}
                     />
