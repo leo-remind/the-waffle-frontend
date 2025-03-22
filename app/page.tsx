@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { FaChartLine, FaBrain, FaQuestion, FaComments, FaArrowRight } from "react-icons/fa6"
 import { Button } from "@/components/ui/button"
@@ -43,14 +43,7 @@ function timeAgo(timestamp: any) {
   return dayjs(timestamp).fromNow();
 }
 
-async function getPdfs() {
-  const pdfs = await fetch("http://localhost:8000/available-pdfs");
-  const pdfsJson = await pdfs.json();
-  return pdfsJson.files;
-}
-
-
-export default async function Home() {
+export default function Home() {
   const [fileUploaded, setFileUploaded] = useState(false)
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [fileName, setFileName] = useState<string>("")
@@ -59,6 +52,7 @@ export default async function Home() {
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [chatHistory, setChatHistory] = useState([] as ChatHistory[]);
+  const [posts, setPosts] = useState([]);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -66,6 +60,12 @@ export default async function Home() {
       setFileUploaded(true)
     }
   }
+
+  useEffect(() => {
+    fetch("http://localhost:8000/available-pdfs")
+      .then((res) => res.json())
+      .then((data) => setPosts(data))
+  }, []);
 
   const triggerFileInput = () => {
     fileInputRef.current?.click()
@@ -128,7 +128,7 @@ export default async function Home() {
   const t = translations[language]
 
   // Get currently available pdfs
-  const pdfsJson = await getPdfs();
+  // const pdfsJson = await getPdfs();
  
   return (
     <div className="min-h-screen bg-background">
@@ -234,7 +234,7 @@ export default async function Home() {
               <div className="w-full mt-8">
                 <h2 className="text-2xl font-dm-sans font-semibold text-text-primary mb-4">{t.recentChats}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {pdfsJson.map((data, i) => (
+                  {Array.isArray(posts) ? posts.map((data: any, i) => (
                     <div key={i} className="bg-neutral rounded-3xl p-6 hover:bg-[#DADADA] border-transparent hover:border-text-secondary transition-colors duration-200 cursor-pointer" style={{ borderWidth: '3px' }}>
                       <div className="flex items-start mb-2">
                         <FaComments className="text-text-secondary mt-1 mr-2" />
@@ -242,7 +242,7 @@ export default async function Home() {
                       </div>
                       <p className="text-base font-dm-sans text-text-secondary font-bold">{timeAgo(data.created_at)}</p>
                     </div>
-                  ))}
+                  )) : null}
                 </div>
               </div>
             </>
