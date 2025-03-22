@@ -196,7 +196,7 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
       console.log("recieved message ", message)
 
       if (message["isStreaming"]) {
-        setResults(message["message"])
+        setResults([message["message"]].concat(results))
       }
       else {
         setChatHistory(chatHistory.concat([
