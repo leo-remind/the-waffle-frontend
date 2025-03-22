@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { FaChartLine, FaBrain, FaQuestion, FaComments, FaArrowRight } from "react-icons/fa6"
 import { Button } from "@/components/ui/button"
@@ -11,6 +11,10 @@ import RagQueryInterface from "@/components/ui/rag-interface"
 import Link from "next/link"
 import { FiUpload } from "react-icons/fi";
 import { HumanQuery, LLMResponse } from "./chat-ui"
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 
 // Language translations
 const translations = {
@@ -82,6 +86,9 @@ const uploadPdfToBackend = async (file: File) => {
     };
   }
 };
+function timeAgo(timestamp: any) {
+  return dayjs(timestamp).fromNow();
+}
 
 export default function Home() {
   const [fileUploaded, setFileUploaded] = useState(false)
@@ -94,6 +101,7 @@ export default function Home() {
   const [chatHistory, setChatHistory] = useState([] as ChatHistory[]);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [posts, setPosts] = useState([]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -125,6 +133,12 @@ export default function Home() {
       }
     }
   };
+
+  useEffect(() => {
+    fetch("http://localhost:8000/available-pdfs")
+      .then((res) => res.json())
+      .then((data) => setPosts(data))
+  }, []);
 
   const triggerFileInput = () => {
     fileInputRef.current?.click()
@@ -187,6 +201,9 @@ export default function Home() {
   // Get current language text
   const t = translations[language]
 
+  // Get currently available pdfs
+  // const pdfsJson = await getPdfs();
+ 
   return (
     <div className="min-h-screen bg-background">
       <header className="p-5 flex justify-between items-center sticky top-0 ">
@@ -315,15 +332,15 @@ export default function Home() {
               <div className="w-full mt-8">
                 <h2 className="text-2xl font-dm-sans font-semibold text-text-primary mb-4">{t.recentChats}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[...Array(6)].map((_, i) => (
+                  {Array.isArray(posts) ? posts.map((data: any, i) => (
                     <div key={i} className="bg-neutral rounded-3xl p-6 hover:bg-[#DADADA] border-transparent hover:border-text-secondary transition-colors duration-200 cursor-pointer" style={{ borderWidth: '3px' }}>
                       <div className="flex items-start mb-2">
                         <FaComments className="text-text-secondary mt-1 mr-2" />
-                        <h3 className="font-dm-sans text-text-primary font-medium text-bold">How to do magic in english</h3>
+                        <h3 className="font-dm-sans text-text-primary font-medium text-bold">Chat with {data.name}</h3>
                       </div>
-                      <p className="text-base font-dm-sans text-text-secondary font-bold">1 DAY AGO</p>
+                      <p className="text-base font-dm-sans text-text-secondary font-bold">{timeAgo(data.created_at)}</p>
                     </div>
-                  ))}
+                  )) : null}
                 </div>
               </div>
             </>
