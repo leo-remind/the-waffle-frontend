@@ -160,6 +160,7 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
       websocketRef.current.close();
     }
     
+<<<<<<< HEAD
     // Create new WebSocket connection
     connectWebSocket(query);
   };
@@ -168,6 +169,12 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
     // Determine if we need to include graph parameter based on tag selection
     const graphParam = isTagSelected("Graphs");
     const verboseParam = isTagSelected("Explain");
+=======
+    // Create new EventSource for SSE
+    const encodedQuery = encodeURIComponent(query);
+    const serverUrl = process.env.NEXT_PUBLIC_API_URL || 'http://10.1.147.58:8000';
+    eventSourceRef.current = new EventSource(`${serverUrl}/query/${encodedQuery}`);
+>>>>>>> 1cea746 (ee)
     
     // Create a new WebSocket connection
     const socket = new WebSocket(`ws://localhost:8000/query/ws`);
