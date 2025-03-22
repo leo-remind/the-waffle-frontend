@@ -95,6 +95,29 @@ function timeAgo(timestamp: any) {
   return dayjs(timestamp).fromNow();
 }
 
+const RecentChatsSkeleton = () => {
+  return (
+    <div className="w-full mt-8">
+      <div className="h-8 w-48 bg-neutral rounded-lg animate-pulse mb-4"></div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {[...Array(6)].map((_, i) => (
+          <div 
+            key={i} 
+            className="bg-neutral rounded-3xl p-6 border-transparent transition-colors duration-200"
+            style={{ borderWidth: '3px' }}
+          >
+            <div className="flex items-start mb-2">
+              <div className="w-5 h-5 mt-1 mr-2 bg-gray-300 rounded-md animate-pulse"></div>
+              <div className="h-5 bg-gray-300 rounded-md animate-pulse w-3/4"></div>
+            </div>
+            <div className="w-1/3 h-4 mt-2 bg-gray-300 rounded-md animate-pulse"></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export default function Home() {
   const [fileUploaded, setFileUploaded] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -108,6 +131,8 @@ export default function Home() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [posts, setPosts] = useState([]);
   const [tables, setTables] = useState([] as any[]);
+  const [isLoadingChats, setIsLoadingChats] = useState<boolean>(true);
+
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -141,12 +166,23 @@ export default function Home() {
   };
 
   useEffect(() => {
+    // MODIFIED: Added loading state handling
+    setIsLoadingChats(true);
     try {
       fetch("http://localhost:8000/available-pdfs")
         .then((res) => res.json())
-        .then((data) => setPosts(data.files));
+        .then((data) => {
+          setPosts(data.files);
+          // ADDED: Set loading to false when data is fetched
+          setIsLoadingChats(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching PDFs:", error);
+          setIsLoadingChats(false);
+        });
     } catch (e) {
       console.error(e);
+      setIsLoadingChats(false);
     }
   }, []);
 
@@ -368,63 +404,44 @@ export default function Home() {
                 )}
               </motion.div>
 
-              {/* 
-              <div className="flex gap-2 mt-4 self-start">
-                {["Graphs", "Explain"].map((tag) => (
-                  <Button
-                    key={tag}
-                    variant="outline"
-                    className={`rounded-full font-dm-sans ${
-                      isTagSelected(tag)
-                        ? `bg-opacity-50 text-white border-[${getTagColor(tag)}] bg-[${getTagColor(tag)}]`
-                        : `bg-background text-[${getTagColor(tag)}] border-[${getTagColor(tag)}]`
-                    }`}
-                    style={{
-                      borderColor: getTagColor(tag),
-                      color: isTagSelected(tag) ? "white" : getTagColor(tag),
-                      backgroundColor: isTagSelected(tag) ? `${getTagColor(tag)}80` : "transparent",
-                    }}
-                    onClick={() => toggleTag(tag)}
-                  >
-                    {getTagIcon(tag)} {tag}
-                  </Button>
-                ))}
-              </div> */}
-
-              <div className="w-full mt-8">
-                <h2 className="text-2xl font-dm-sans font-semibold text-text-primary mb-4">
-                  {t.recentChats}
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {Array.isArray(posts) ? (
-                    posts.map((data: any, i) => (
-                      <button key={i}
-                        onClick={() => (
-                          setFileUploaded(true), setFileName(data.name)
-                        )}
-                        className="w-full"
-                      >
-                        <div
-                          className="bg-neutral rounded-3xl p-6 hover:bg-[#DADADA] border-transparent hover:border-text-secondary transition-colors duration-200 cursor-pointer"
-                          style={{ borderWidth: "3px" }}
+              {isLoadingChats ? (
+                <RecentChatsSkeleton />
+              ) : (
+                <div className="w-full mt-8">
+                  <h2 className="text-2xl font-dm-sans font-semibold text-text-primary mb-4">
+                    {t.recentChats}
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {Array.isArray(posts) && posts.length > 0 ? (
+                      posts.map((data: any, i) => (
+                        <button key={i}
+                          onClick={() => (
+                            setFileUploaded(true), setFileName(data.name)
+                          )}
+                          className="w-full"
                         >
-                          <div className="flex items-start mb-2">
-                            <FaComments className="text-text-secondary mt-1 mr-2" />
-                            <h3 className="font-dm-sans text-text-primary font-medium text-bold">
-                              Chat with {data.name}
-                            </h3>
+                          <div
+                            className="bg-neutral rounded-3xl p-6 hover:bg-[#DADADA] border-transparent hover:border-text-secondary transition-colors duration-200 cursor-pointer"
+                            style={{ borderWidth: "3px" }}
+                          >
+                            <div className="flex items-start mb-2">
+                              <FaComments className="text-text-secondary mt-1 mr-2" />
+                              <h3 className="font-dm-sans text-text-primary font-medium text-bold">
+                                Chat with {data.name}
+                              </h3>
+                            </div>
+                            <p className="text-base font-dm-sans text-text-secondary font-bold">
+                              {timeAgo(data.created_at)}
+                            </p>
                           </div>
-                          <p className="text-base font-dm-sans text-text-secondary font-bold">
-                            {timeAgo(data.created_at)}
-                          </p>
-                        </div>
-                      </button>
-                    ))
-                  ) : (
-                    <p>No recent chats</p>
-                  )}
+                        </button>
+                      ))
+                    ) : (
+                      <p className="text-text-secondary col-span-3 text-center py-8">No recent chats</p>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
             </>
           ) : (
             <motion.div
