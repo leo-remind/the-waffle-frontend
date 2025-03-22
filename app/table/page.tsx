@@ -4,24 +4,26 @@ export default function Table() {
   const jsonData = [
     {
       meta: {
-        table_header: "Table 1",
+        table_heading: "Table 1",
+        supabase_table_name: "sometable",
         pdf_url: "https://example.com/table1.pdf",
         page_number: 1,
       },
       data: {
-        col1: ["row1", "row2", "row3"],
-        col2: ["row1", "row2", "row3"],
+        col1: { "0": "row1", "1": "row2", "2": "row3" },
+        col2: { "0": "row1", "1": "row2", "2": "row3" },
       },
     },
     {
       meta: {
-        table_header: "Table 2",
+        table_heading: "Table 2",
+        supabase_table_name: "someota",
         pdf_url: "https://example.com/table1.pdf",
         page_number: 1,
       },
       data: {
-        col1: ["row1", "row2", "row3"],
-        col2: ["row1", "row2", "row3"],
+        col1: { "0": "row1", "1": "row2", "2": "row3" },
+        col2: { "0": "row1", "1": "row2", "2": "row3" },
       },
     },
   ];
