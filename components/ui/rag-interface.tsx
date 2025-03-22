@@ -256,14 +256,9 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
 
     socket.onmessage = (event) => {
       const messageStr = event.data;
-<<<<<<< HEAD
       console.log("initial message", messageStr)
       const message = JSON.parse(messageStr)
       console.log("recieved message ", message)
-=======
-      const message = JSON.parse(messageStr);
-      console.log("recieved message ", message);
->>>>>>> 114f9db (stt)
 
       if (message["isStreaming"]) {
         setResults([message["message"]].concat(results));
@@ -272,7 +267,6 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
             message["tables"].map((table: string) => JSON.parse(table))
           );
         }
-<<<<<<< HEAD
       }
       else {
         // Build chat history entries
@@ -302,22 +296,6 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
         setChatHistory(newChatHistory);
         
         setStatus('Query complete.');
-=======
-      } else {
-        // Only add the AI response to chat history (user message was already added)
-        setChatHistory([
-          ...chatHistory,
-          {
-            role: "human",
-            value: queryText,
-          } as ChatHistory,
-          {
-            role: "llm",
-            value: message["message"],
-          } as ChatHistory,
-        ]);
-        setStatus("Query complete.");
->>>>>>> 114f9db (stt)
         setIsProcessing(false);
       }
     };
@@ -370,22 +348,6 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
       </div>
 
       <div className="bg-[#F5F5F5] flex items-center p-6 rounded-t-2xl w-[95%] mx-auto">
-<<<<<<< HEAD
-  <div className="relative">
-    <div className="bg-white px-4 py-4 rounded-2xl font-dm-sans text-base">
-      {fileName}
-    </div>
-    <Button 
-      variant="ghost" 
-      size="icon" 
-      className="h-7 w-7 rounded-full bg-[#333] text-white flex items-center justify-center hover:bg-[#191919] absolute -top-3 -left-3"
-      onClick={onReset}
-    >
-      <span className="text-sm">✕</span>
-    </Button>
-  </div>
-</div>
-=======
         <div className="relative">
           <div className="bg-white px-4 py-4 rounded-2xl font-dm-sans text-base">
             {fileName}
@@ -400,7 +362,6 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
           </Button>
         </div>
       </div>
->>>>>>> 114f9db (stt)
 
       {/* Chat interface */}
       <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl border border-gray-300 overflow-hidden shadow-lg">
