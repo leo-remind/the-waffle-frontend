@@ -19,21 +19,69 @@ const translations = {
     uploadPrompt: "Upload a file to get started",
     recentChats: "Recent Chats",
     enterQuery: "Enter your query",
-    language: "English"
+    language: "English",
+    uploadError: "Error uploading file. Please try again.",
+    uploadingFile: "Uploading file...",
+    pdfOnly: "Only PDF files are allowed"
   },
   hindi: {
     greeting: "नमस्ते, उपयोगकर्ता",
     uploadPrompt: "शुरू करने के लिए फ़ाइल अपलोड करें",
     recentChats: "हाल की चैट",
     enterQuery: "अपना प्रश्न दर्ज करें",
-    language: "हिंदी"
+    language: "हिंदी",
+    uploadError: "फ़ाइल अपलोड करने में त्रुटि। कृपया पुन: प्रयास करें।",
+    uploadingFile: "फ़ाइल अपलोड हो रही है...",
+    pdfOnly: "केवल पीडीएफ फाइलें अनुमत हैं"
   }
 }
 
 export interface ChatHistory {
-  role : string;
-  value : string;
+  role: string;
+  value: string;
 }
+
+// upload PDF to backend
+const uploadPdfToBackend = async (file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  try {
+    const response = await fetch('http://localhost:8000/upload/pdf', {
+      method: 'POST',
+      body: formData,
+      // Remove credentials setting completely
+    });
+    
+    
+    console.log('Response status:', response.status);
+    
+    const result = await response.json();
+    console.log('Response data:', result);
+    
+    if (response.ok) {
+      return {
+        success: true,
+        message: 'Upload successful',
+        filename: file.name
+      };
+    } else {
+      return {
+        success: false,
+        message: 'Upload failed',
+        filename: file.name
+      };
+    }
+
+  } catch (error) {
+    console.error('Error:', error);
+    return {
+      success: false,
+      message: 'Connection error',
+      filename: file.name
+    };
+  }
+};
 
 export default function Home() {
   const [fileUploaded, setFileUploaded] = useState(false)
@@ -44,13 +92,39 @@ export default function Home() {
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [chatHistory, setChatHistory] = useState([] as ChatHistory[]);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setFileName(e.target.files[0].name)
-      setFileUploaded(true)
+      const file = e.target.files[0];
+      
+      if (file.type !== 'application/pdf') {
+        setUploadError(translations[language].pdfOnly);
+        return;
+      }
+      
+      setIsUploading(true);
+      setUploadError(null);
+      
+      try {
+        const result = await uploadPdfToBackend(file);
+        
+        if (result.success) {
+          setFileName(result.filename);
+          setFileUploaded(true);
+          setUploadError(null);
+        } else {
+          setUploadError(result.message);
+        }
+      } catch (error) {
+        console.error('Error during upload:', error);
+        setUploadError(translations[language].uploadError);
+      } finally {
+        setIsUploading(false);
+      }
     }
-  }
+  };
 
   const triggerFileInput = () => {
     fileInputRef.current?.click()
@@ -95,6 +169,7 @@ export default function Home() {
   const resetUpload = () => {
     setFileUploaded(false)
     setFileName("")
+    setUploadError(null)
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
     }
@@ -181,16 +256,40 @@ export default function Home() {
               <motion.div
                 initial={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className={`w-full border-4 border-dashed border-text-primary rounded-3xl p-10 flex flex-col items-center justify-center cursor-pointer hover:bg-[#1C80E320] transition-all group hover:border-primary hover:border-solid`}
-                onClick={triggerFileInput}
+                className={`w-full border-4 border-dashed ${uploadError ? 'border-red-500' : 'border-text-primary'} rounded-3xl p-10 flex flex-col items-center justify-center cursor-pointer hover:bg-[#1C80E320] transition-all group ${!isUploading ? 'hover:border-primary hover:border-solid' : ''}`}
+                onClick={!isUploading ? triggerFileInput : undefined}
               >
-                <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
-                <div className="text-text-primary mb-4 group-hover:text-primary">
-                  <FiUpload className="w-36 h-36"/>
-                </div>
-                <p className="text-2xl font-dm-sans text-text-primary group-hover:text-primary">{t.uploadPrompt}</p>
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleFileUpload} 
+                  className="hidden" 
+                  accept="application/pdf" 
+                />
+                
+                {isUploading ? (
+                  <div className="flex flex-col items-center">
+                    <div className="text-primary mb-4">
+                      <svg className="animate-spin h-16 w-16" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    </div>
+                    <p className="text-2xl font-dm-sans text-primary">{t.uploadingFile}</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className={`text-text-primary mb-4 group-hover:text-primary ${uploadError ? 'text-red-500' : ''}`}>
+                      <FiUpload className="w-36 h-36"/>
+                    </div>
+                    <p className={`text-2xl font-dm-sans ${uploadError ? 'text-red-500' : 'text-text-primary group-hover:text-primary'}`}>
+                      {uploadError || t.uploadPrompt}
+                    </p>
+                  </>
+                )}
               </motion.div>
-{/* 
+
+              {/* 
               <div className="flex gap-2 mt-4 self-start">
                 {["Graphs", "Explain", "Reason"].map((tag) => (
                   <Button
@@ -238,7 +337,11 @@ export default function Home() {
             >
               <div className="flex flex-col items-end">
               {
-                chatHistory.map((historyItem) => historyItem.role == "llm" ? <LLMResponse value={historyItem.value}/> : <HumanQuery value={historyItem.value}/>)
+                chatHistory.map((historyItem, index) => 
+                  historyItem.role === "llm" 
+                    ? <LLMResponse key={`response-${index}`} value={historyItem.value}/> 
+                    : <HumanQuery key={`query-${index}`} value={historyItem.value}/>
+                )
               }
               </div>
               <div className="flex-grow" /> {/* This creates space above the interface */}
@@ -262,5 +365,5 @@ export default function Home() {
         </AnimatePresence>
       </main>
     </div>
-  )
+  );
 }
