@@ -20,6 +20,7 @@ import { HumanQuery, LLMResponse } from "./chat-ui";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import TableRenderer from "@/components/ui/table-renderer";
+import SpeechToText from "@/components/ours/speech2text";
 
 dayjs.extend(relativeTime);
 
@@ -132,7 +133,7 @@ export default function Home() {
   const [posts, setPosts] = useState([]);
   const [tables, setTables] = useState([] as any[]);
   const [isLoadingChats, setIsLoadingChats] = useState<boolean>(true);
-
+4
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
