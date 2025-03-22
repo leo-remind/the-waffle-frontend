@@ -11,6 +11,10 @@ import RagQueryInterface from "@/components/ui/rag-interface"
 import Link from "next/link"
 import { FiUpload } from "react-icons/fi";
 import { HumanQuery, LLMResponse } from "./chat-ui"
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 
 // Language translations
 const translations = {
@@ -35,7 +39,18 @@ export interface ChatHistory {
   value : string;
 }
 
-export default function Home() {
+function timeAgo(timestamp: any) {
+  return dayjs(timestamp).fromNow();
+}
+
+async function getPdfs() {
+  const pdfs = await fetch("http://localhost:8000/available-pdfs");
+  const pdfsJson = await pdfs.json();
+  return pdfsJson.files;
+}
+
+
+export default async function Home() {
   const [fileUploaded, setFileUploaded] = useState(false)
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [fileName, setFileName] = useState<string>("")
@@ -112,6 +127,9 @@ export default function Home() {
   // Get current language text
   const t = translations[language]
 
+  // Get currently available pdfs
+  const pdfsJson = await getPdfs();
+ 
   return (
     <div className="min-h-screen bg-background">
       <header className="p-5 flex justify-between items-center sticky top-0 ">
@@ -216,13 +234,13 @@ export default function Home() {
               <div className="w-full mt-8">
                 <h2 className="text-2xl font-dm-sans font-semibold text-text-primary mb-4">{t.recentChats}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[...Array(6)].map((_, i) => (
+                  {pdfsJson.map((data, i) => (
                     <div key={i} className="bg-neutral rounded-3xl p-6 hover:bg-[#DADADA] border-transparent hover:border-text-secondary transition-colors duration-200 cursor-pointer" style={{ borderWidth: '3px' }}>
                       <div className="flex items-start mb-2">
                         <FaComments className="text-text-secondary mt-1 mr-2" />
-                        <h3 className="font-dm-sans text-text-primary font-medium text-bold">How to do magic in english</h3>
+                        <h3 className="font-dm-sans text-text-primary font-medium text-bold">Chat with {data.name}</h3>
                       </div>
-                      <p className="text-base font-dm-sans text-text-secondary font-bold">1 DAY AGO</p>
+                      <p className="text-base font-dm-sans text-text-secondary font-bold">{timeAgo(data.created_at)}</p>
                     </div>
                   ))}
                 </div>
