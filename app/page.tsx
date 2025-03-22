@@ -10,6 +10,7 @@ import Image from "next/image"
 import RagQueryInterface from "@/components/ui/rag-interface"
 import Link from "next/link"
 import { FiUpload } from "react-icons/fi";
+import { HumanQuery, LLMResponse } from "./chat-ui"
 
 // Language translations
 const translations = {
@@ -29,6 +30,11 @@ const translations = {
   }
 }
 
+export interface ChatHistory {
+  role : string;
+  value : string;
+}
+
 export default function Home() {
   const [fileUploaded, setFileUploaded] = useState(false)
   const [selectedTags, setSelectedTags] = useState<string[]>([])
@@ -37,6 +43,7 @@ export default function Home() {
   const [language, setLanguage] = useState<"english" | "hindi">("english")
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const [chatHistory, setChatHistory] = useState([] as ChatHistory[]);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -107,7 +114,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="p-5 flex justify-between items-center sticky top-0 bg-white">
+      <header className="p-5 flex justify-between items-center sticky top-0 ">
         <Link href="/">
         <div className="flex items-center gap-1">
           <span className="text-3xl font-dm-sans font-black text-text-primary">The</span>
@@ -227,10 +234,15 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex-grow flex flex-col h-full overflow-hidden"
+              className="flex-grow flex flex-col h-full overflow-auto mb-96"
             >
+              <div className="flex flex-col items-end">
+              {
+                chatHistory.map((historyItem) => historyItem.role == "llm" ? <LLMResponse value={historyItem.value}/> : <HumanQuery value={historyItem.value}/>)
+              }
+              </div>
               <div className="flex-grow" /> {/* This creates space above the interface */}
-              <div className="absolute bottom-0 left-0 right-0 mb-6 mx-auto max-w-3xl w-11/12">
+              <div className="fixed bottom-0 left-0 right-0 mb-6 mx-auto max-w-3xl w-11/12">
                 <RagQueryInterface
                   fileName={fileName}
                   onReset={resetUpload}
@@ -241,6 +253,8 @@ export default function Home() {
                   isTagSelected={isTagSelected}
                   language={language}
                   translations={translations}
+                  setChatHistory={setChatHistory}
+                  chatHistory={chatHistory}
                 />
               </div>
             </motion.div>

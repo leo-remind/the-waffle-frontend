@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react"
 import { FaArrowUp, FaChartLine, FaBrain, FaQuestion } from "react-icons/fa6"
 import { Button } from "@/components/ui/button"
+import { ChatHistory } from "@/app/page";
 
 interface RagQueryProps {
   fileName: string;
@@ -23,6 +24,8 @@ interface RagQueryProps {
       [key: string]: string;
     };
   };
+  setChatHistory: (arg: ChatHistory[]) => void
+  chatHistory: ChatHistory[]
 }
 
 const RagQueryInterface: React.FC<RagQueryProps> = ({
@@ -34,7 +37,9 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
   getTagIcon,
   isTagSelected,
   language,
-  translations
+  translations,
+  setChatHistory,
+  chatHistory
 }) => {
   const [query, setQuery] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -86,7 +91,7 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
           100% { opacity: 0; transform: translateY(-20px); }
         }
         .animate-float {
-          animation: floatUp 2s ease-out forwards;
+          animation: floatUp 5s ease-out forwards;
         }
         
         @keyframes loadingDot {
@@ -99,7 +104,6 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
           height: 6px;
           border-radius: 50%;
           margin: 0 2px;
-          background-color: #718096;
         }
         .loading-dot:nth-child(1) {
           animation: loadingDot 1.2s infinite ease-in-out;
@@ -190,14 +194,20 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
       console.log("recieved message " + message)
       
       // Update the results with the latest message
-      setResults([message]);
-      
-      // Check if this is the final message
-      // Assuming the last message doesn't contain specific status indicators
-      if (!message.includes("Finding") && 
-          !message.includes("Generating") && 
-          !message.includes("Querying") && 
-          !message.includes("Values collated")) {
+      if (message.startsWith("stream: ")) {
+        setResults([message.substring("stream: ".length)]);
+      } else {
+        setChatHistory(chatHistory.concat([
+          {
+            role: "human",
+            value: queryText
+          } as ChatHistory,
+          {
+            role: "llm",
+            value: message.substring("kill: ".length)
+          } as ChatHistory
+        ]))
+        setQuery("")
         setStatus('Query complete.');
         setIsProcessing(false);
       }
@@ -230,16 +240,16 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
             <div className="dots-container">
               {isProcessing && (
                 <>
-                  <span className="loading-dot"></span>
-                  <span className="loading-dot"></span>
-                  <span className="loading-dot"></span>
+                  <span className="loading-dot bg-primary"></span>
+                  <span className="loading-dot bg-primary"></span>
+                  <span className="loading-dot bg-primary"></span>
                 </>
               )}
             </div>
             
             {/* Floating text */}
             <div className="text-container">
-              <div key={results[0]} className="animate-float text-base text-muted-foreground italic font-serif text-md">
+              <div key={results[0]} className="animate-float text-base text-primary font-bold font-dm-sans text-md">
                 {results[0]}
               </div>
             </div>
