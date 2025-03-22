@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react"
 import { FaArrowUp, FaChartLine, FaBrain, FaQuestion } from "react-icons/fa6"
 import { Button } from "@/components/ui/button"
 import { ChatHistory } from "@/app/page";
+import { m } from "framer-motion";
 
 interface RagQueryProps {
   fileName: string;
@@ -245,6 +246,7 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
 
     socket.onmessage = (event) => {
       const messageStr = event.data;
+      console.log("initial message", messageStr)
       const message = JSON.parse(messageStr)
       console.log("recieved message ", message)
 
@@ -255,18 +257,32 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
         }
       }
       else {
-        // Only add the AI response to chat history (user message was already added)
-        setChatHistory([
+        // Build chat history entries
+        const newChatHistory = [
           ...chatHistory,
           {
             role: "human",
             value: queryText
-          } as ChatHistory,
-          {
-            role: "llm",
-            value: message["message"]
           } as ChatHistory
-        ])
+        ];
+        
+        // Highlight: Add SQL reasoning to chat history if verboseParam is true and sql_reasoning exists
+        if (verboseParam && message["sqlReasoning"]) {
+          newChatHistory.push({
+            role: "system",
+            value: message["sqlReasoning"]
+          } as ChatHistory);
+        }
+        
+        // Add the final LLM response
+        newChatHistory.push({
+          role: "llm",
+          value: message["message"]
+        } as ChatHistory);
+        
+        // Update chat history with all entries
+        setChatHistory(newChatHistory);
+        
         setStatus('Query complete.');
         setIsProcessing(false);
       }

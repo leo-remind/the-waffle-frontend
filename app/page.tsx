@@ -421,12 +421,12 @@ export default function Home() {
                           className="w-full"
                         >
                           <div
-                            className="bg-neutral rounded-3xl p-6 hover:bg-[#DADADA] border-transparent hover:border-text-secondary transition-colors duration-200 cursor-pointer text-ellipsis text-left"
+                            className="bg-neutral rounded-3xl p-6 hover:bg-[#DADADA] border-transparent hover:border-text-secondary transition-colors duration-200 cursor-pointer text-left"
                             style={{ borderWidth: "3px" }}
                           >
                             <div className="flex items-start mb-2">
-                              <FaComments className="text-text-secondary mt-1 mr-2" />
-                              <h3 className="font-dm-sans text-text-primary font-medium text-bold">
+                              <FaComments className="text-text-secondary mt-1 mr-2 flex-shrink-0" />
+                              <h3 className="font-dm-sans text-text-primary font-medium text-bold truncate overflow-hidden">
                                 Chat with {data.name}
                               </h3>
                             </div>
@@ -451,7 +451,7 @@ export default function Home() {
               exit={{ opacity: 0 }}
               className="flex-grow flex flex-col h-full overflow-auto mb-96"
             >
-              <div className="flex flex-col items-end">
+              <div className="flex flex-col items-end w-full">
                 {chatHistory.map((historyItem, index) =>
                   historyItem.role === "llm" ? (
                     <LLMResponse

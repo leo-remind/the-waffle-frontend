@@ -308,7 +308,7 @@ export function HumanQuery({
     }, [value]);
 
     return (
-        <div className="p-4 bg-primary rounded-[16px] max-w-1/2 w-fit my-4">
+        <div className="p-4 bg-primary rounded-[16px] w-fit my-4">
             <div
                 className="markdown-content human-markdown text-lg font-medium text-white font-dm-sans"
                 dangerouslySetInnerHTML={{ __html: processedContent }}
