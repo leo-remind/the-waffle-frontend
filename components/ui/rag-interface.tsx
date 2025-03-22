@@ -275,17 +275,20 @@ const RagQueryInterface: React.FC<RagQueryProps> = ({
       }
       else {
         // Build chat history entries
-        const newChatHistory = [
+        setChatHistory([
           ...chatHistory,
           {
             role: "human",
             value: queryText
+          } as ChatHistory,
+          {
+            role: "llm",
+            value: message["message"]
           } as ChatHistory
-        ]
+        ]);
         setSVGData(message["graph_code"])
         setStatus('Query complete.');
         setIsProcessing(false);
-        setChatHistory(newChatHistory);
       }
     };
 
