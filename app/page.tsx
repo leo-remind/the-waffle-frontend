@@ -472,7 +472,7 @@ export default function Home() {
                   historyItem.role === "llm" ? (
                     <LLMResponse
                       key={`response-${index}`}
-                      value={language == "hindi" ? historyItem.value + "\n" + translateText(historyItem.value) : historyItem.value}
+                      value={language == "hindi" ? historyItem.value : historyItem.value}
                       tables={tables}
                       svgData={svgData}
                     />
